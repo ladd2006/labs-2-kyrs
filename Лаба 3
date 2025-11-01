@@ -1,0 +1,556 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace лаба_3_задание
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            while (true)
+            {
+                Console.WriteLine("\n=== Меню управления ===");
+                Console.WriteLine("1. Добавить институт");
+                Console.WriteLine("2. Добавить курс");
+                Console.WriteLine("3. Добавить группу");
+                Console.WriteLine("4. Добавить студента");
+                Console.WriteLine("5. Добавить оценки");
+                Console.WriteLine("6. Переименовать");
+                Console.WriteLine("7. Удалить студента");
+                Console.WriteLine("8. Вывести интситут с наибольшим количеством отличников");
+                Console.WriteLine("0. Выход");
+                Console.Write("Выберите действие: ");
+                Console.WriteLine();
+
+                string choice = Console.ReadLine();
+
+                switch (choice)
+                {
+                    case "1": AddInstite(); break;
+                    case "2": AddCourse(); break;
+                    case "3": AddGroup(); break;
+                    case "4": AddStudent(); break;
+                    case "5": AddGrade(); break;
+                    case "6": ReName(); break;
+                    case "7": Delete(); break;
+                    case "8": FindBestInstituteToFile(); break;
+                    case "0": return;
+                    default: Console.WriteLine("Неверный выбор!"); break;
+                }
+            }
+        }
+        public class Subject
+        {
+            string NameSubject { get; set; }
+
+            public Subject(string name)
+            {
+                NameSubject = name;
+
+            }
+        }
+        public class Student
+        {
+            public string Name { get; set; }
+            public string LastName { get; set; }
+            public List<int> Grades { get; set; }
+
+            public Student(string name, string lastname)
+            {
+                Name = name;
+                LastName = lastname;
+                Grades = new List<int>();
+
+            }
+
+        }
+        public class Group
+        {
+            public string NameGroup { get; set; }
+            public List<Student> students { get; set; }
+
+
+
+        }
+        public class Course
+        {
+            public string NameCourse { get; set; }
+            public List<Group> groups { get; set; }
+            public List<Subject> subjects { get; set; }
+
+
+        }
+        public class Institute
+        {
+            public string NameInst { get; set; }
+            public List<Course> courses { get; set; }
+
+        }
+        static List<Institute> Institutes = new List<Institute>();
+
+
+        static void AddInstite()
+        {
+            Console.Write("Введите название добовляемого института: ");
+            string newInst = Console.ReadLine();
+            Institutes.Add(new Institute { NameInst = newInst, courses = new List<Course>() });
+            Console.WriteLine("Успешно добавлен интситут!");
+        }
+        static void AddCourse()
+        {
+            if (Institutes.Count > 0)
+            {
+
+
+                int a = 1;
+                Console.WriteLine("Выберете институт: ");
+                foreach (var institute in Institutes)
+                {
+                    Console.WriteLine(a + ": " + institute.NameInst);
+                    a++;
+                }
+                int ind = int.Parse(Console.ReadLine()) - 1;
+                Console.WriteLine("Введите добавляемого номер курса");
+                string Name = Console.ReadLine();
+                Institutes[ind].courses.Add(new Course { NameCourse = Name, groups = new List<Group>() });
+                Console.WriteLine("Курс успешно добавлен");
+            }
+            else
+            {
+                Console.WriteLine("Инстутов нету!");
+                return;
+            }
+        }
+        static void AddGroup()
+        {
+            if (Institutes.Count > 0)
+            {
+                int a = 1;
+                Console.WriteLine("Выберете институт: ");
+                foreach (var institute in Institutes)
+                {
+                    Console.WriteLine(a + ": " + institute.NameInst);
+                    a++;
+                }
+                int ind = int.Parse(Console.ReadLine()) - 1;
+                Console.WriteLine();
+                if (Institutes[ind] != null)
+                {
+                    int b = 1;
+                    Console.WriteLine("Выберете курс: ");
+                    foreach (var cours in Institutes[ind].courses)
+                    {
+                        Console.WriteLine(b + ": " + cours.NameCourse);
+                        b++;
+                    }
+                    int indCour = int.Parse(Console.ReadLine()) - 1;
+                    if (Institutes[ind].courses[indCour] != null)
+                    {
+                        Console.Write("Введите название добавляемой группы: ");
+                        string namme = Console.ReadLine();
+                        Institutes[ind].courses[indCour].groups.Add(new Group { NameGroup = namme, students = new List<Student>() });
+                        Console.WriteLine("Группа успешно добавлена!");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Курса под таким номером нету!");
+                        return;
+                    }
+
+                }
+                else
+                {
+                    Console.WriteLine("Института под таким номером нету!");
+                    return;
+                }
+
+
+            }
+            else
+            {
+                Console.WriteLine("Институтов нету!");
+                return;
+            }
+        }
+        static void AddStudent()
+        {
+            if (Institutes.Count > 0)
+            {
+                int a = 1;
+                Console.WriteLine("Выберете институт: ");
+                foreach (var institute in Institutes)
+                {
+                    Console.WriteLine(a + ": " + institute.NameInst);
+                    a++;
+                }
+                int ind = int.Parse(Console.ReadLine()) - 1;
+                Console.WriteLine();
+                if (Institutes[ind] != null)
+                {
+                    int b = 1;
+                    Console.WriteLine("Выберете курс: ");
+                    foreach (var cours in Institutes[ind].courses)
+                    {
+                        Console.WriteLine(b + ": " + cours.NameCourse);
+                        b++;
+                    }
+                    int indCour = int.Parse(Console.ReadLine()) - 1;
+                    if (Institutes[ind].courses[indCour] != null)
+                    {
+                        int c = 1;
+                        Console.WriteLine("Выберете группу из списка: ");
+                        foreach (var group in Institutes[ind].courses[indCour].groups)
+                        {
+                            Console.WriteLine(c + ": " + group.NameGroup);
+                            c++;
+                        }
+                        int indgroup = int.Parse(Console.ReadLine()) - 1;
+                        if (Institutes[ind].courses[indCour].groups[indgroup] != null)
+                        {
+                            Console.Write("Введите имя и фамилию добавляемого студента: ");
+                            string nameStud = Console.ReadLine();
+                            string lastnameStud = Console.ReadLine();
+                            Student newstudent = new Student(nameStud, lastnameStud);
+                            Institutes[ind].courses[indCour].groups[indgroup].students.Add(newstudent);
+                            Console.WriteLine("Студент успешно добавлен!");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Группы под таким номером нету!");
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Курса под таким номером нету!");
+                        return;
+                    }
+
+                }
+                else
+                {
+                    Console.WriteLine("Института под таким номером нету!");
+                    return;
+                }
+
+
+            }
+            else
+            {
+                Console.WriteLine("Институтов нету!");
+                return;
+            }
+        }
+        static void AddGrade()
+        {
+            if (Institutes.Count > 0)
+            {
+                int a = 1;
+                Console.WriteLine("Выберете институт: ");
+                foreach (var institute in Institutes)
+                {
+                    Console.WriteLine(a + ": " + institute.NameInst);
+                    a++;
+                }
+                int ind = int.Parse(Console.ReadLine()) - 1;
+                Console.WriteLine();
+                if (Institutes[ind] != null)
+                {
+                    int b = 1;
+                    Console.WriteLine("Выберете курс: ");
+                    foreach (var cours in Institutes[ind].courses)
+                    {
+                        Console.WriteLine(b + ": " + cours.NameCourse);
+                        b++;
+                    }
+                    int indCour = int.Parse(Console.ReadLine()) - 1;
+                    if (Institutes[ind].courses[indCour] != null)
+                    {
+                        int c = 1;
+                        Console.WriteLine("Выберете группу из списка: ");
+                        foreach (var group in Institutes[ind].courses[indCour].groups)
+                        {
+                            Console.WriteLine(c + ": " + group.NameGroup);
+                            c++;
+                        }
+                        int indgroup = int.Parse(Console.ReadLine()) - 1;
+                        if (Institutes[ind].courses[indCour].groups[indgroup] != null)
+                        {
+                            int d = 1;
+                            Console.WriteLine("Выберете студента которому нужно добавить оценки: ");
+                            foreach (var stud in Institutes[ind].courses[indCour].groups[indgroup].students)
+                            {
+                                Console.WriteLine(d + ": " + stud.Name + " " + stud.LastName);
+                                d++;
+                            }
+                            int studnum = int.Parse(Console.ReadLine()) - 1;
+                            if (Institutes[ind].courses[indCour].groups[indgroup].students[studnum] != null)
+                            {
+                                Console.WriteLine("Введите кол-во добавляемых оценок: ");
+                                int CountGrade = int.Parse(Console.ReadLine());
+                                Console.WriteLine("Введите оценки: ");
+
+                                List<int> newgreadesstud = new List<int>();
+                                for (int i = 0; i < CountGrade; i++)
+                                {
+                                    int temp = int.Parse(Console.ReadLine());
+                                    newgreadesstud.Add(temp);
+                                }
+                                Institutes[ind].courses[indCour].groups[indgroup].students[studnum].Grades = newgreadesstud;
+                                Console.WriteLine("Оценки успешно добавлены!");
+                            }
+                            else
+                            {
+                                Console.WriteLine("Такого студента нету!");
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Группы под таким номером нету!");
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Курса под таким номером нету!");
+                        return;
+                    }
+
+                }
+                else
+                {
+                    Console.WriteLine("Института под таким номером нету!");
+                    return;
+                }
+
+
+            }
+            else
+            {
+                Console.WriteLine("Институтов нету!");
+                return;
+            }
+        }
+        static void ReName()
+        {
+            Console.WriteLine("Выберите что хотите преименовать: ");
+            Console.WriteLine("1: Название университета");
+            Console.WriteLine("2: Название группы");
+            Console.WriteLine("3: Имя и Фамилию студента");
+            int vibor = int.Parse(Console.ReadLine());
+            if (vibor == 1)
+            {
+                Console.WriteLine("Выберете один из достпуных институтов: ");
+                int a = 1;
+                foreach (var i in Institutes)
+                {
+                    Console.WriteLine(a + ": " + i.NameInst);
+                    a++;
+                }
+                int viborInst = int.Parse(Console.ReadLine()) - 1;
+                if (Institutes[viborInst] != null)
+                {
+                    Console.Write("Введите новое название института: ");
+                    string NewNameInst = Console.ReadLine();
+                    Institutes[viborInst].NameInst = NewNameInst;
+                    Console.WriteLine("Институт успешно переименован!");
+                }
+                else
+                {
+                    Console.WriteLine("Института под таким номером нету!");
+                    return;
+                }
+            }
+            if (vibor == 2)
+            {
+                int numGroup = 1;
+                Console.WriteLine("Выберете группу которой хотите изменить навзание: ");
+                for (int i = 0; i < Institutes.Count; i++)
+                {
+                    for (int j = 0; j < Institutes[i].courses.Count; j++)
+                    {
+                        for (int k = 0; k < Institutes[i].courses[j].groups.Count; k++)
+                        {
+                            Console.WriteLine(numGroup + " " + Institutes[i].courses[j].groups[k].NameGroup);
+                            numGroup++;
+                        }
+                    }
+                }
+                int viborGroup = int.Parse(Console.ReadLine()) - 1;
+                Console.Write("Введите новое название группы: ");
+                string NewNAmeGroup = Console.ReadLine();
+                int currentGroup = 0;
+                for (int i = 0; i < Institutes.Count; i++)
+                {
+                    for (int j = 0; j < Institutes[i].courses.Count; j++)
+                    {
+                        for (int k = 0; k < Institutes[i].courses[j].groups.Count; k++)
+                        {
+                            if (currentGroup == viborGroup)
+                            {
+                                Institutes[i].courses[j].groups[k].NameGroup = NewNAmeGroup;
+                                Console.WriteLine("Название группы успешно изменено!");
+                                return;
+                            }
+                            currentGroup++;
+                        }
+                    }
+                }
+            }
+            if (vibor == 3)
+            {
+                Console.WriteLine("Выберете студента которому надо изменить Имя и Фамилию");
+                int numStudent = 1;
+                for (int i = 0; i < Institutes.Count; i++)
+                {
+                    for (int j = 0; j < Institutes[i].courses.Count; j++)
+                    {
+                        for (int k = 0; k < Institutes[i].courses[j].groups.Count; k++)
+                        {
+                            for (int l = 0; l < Institutes[i].courses[j].groups[k].students.Count; l++)
+                            {
+                                Console.WriteLine(numStudent + " " + Institutes[i].courses[j].groups[k].students[l].Name + " " + Institutes[i].courses[j].groups[k].students[l].LastName);
+                                numStudent++;
+                            }
+                        }
+                    }
+                }
+                int ViborStudent = int.Parse(Console.ReadLine()) - 1;
+
+                Console.Write("Введите новое имя и фамилию студента: ");
+                string NewnameStud = Console.ReadLine();
+                string NewLastNAmeStud = Console.ReadLine();
+                int currentStudent = 0;
+                for (int i = 0; i < Institutes.Count; i++)
+                {
+                    for (int j = 0; j < Institutes[i].courses.Count; j++)
+                    {
+                        for (int k = 0; k < Institutes[i].courses[j].groups.Count; k++)
+                        {
+                            for (int l = 0; l < Institutes[i].courses[j].groups[k].students.Count; l++)
+                            {
+                                if (currentStudent == ViborStudent)
+                                {
+                                    Institutes[i].courses[j].groups[k].students[l].Name = NewnameStud;
+                                    Institutes[i].courses[j].groups[k].students[l].LastName = NewLastNAmeStud;
+                                    Console.WriteLine("Имя и фамилия студента успешно изменены!");
+                                    return;
+                                }
+                                currentStudent++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        static void Delete()
+        {
+            Console.WriteLine("Выберете студента для удаления: ");
+            int numStudent = 1;
+            for (int i = 0; i < Institutes.Count; i++)
+            {
+                for (int j = 0; j < Institutes[i].courses.Count; j++)
+                {
+                    for (int k = 0; k < Institutes[i].courses[j].groups.Count; k++)
+                    {
+                        for (int l = 0; l < Institutes[i].courses[j].groups[k].students.Count; l++)
+                        {
+                            Console.WriteLine(numStudent + " " + Institutes[i].courses[j].groups[k].students[l].Name + " " + Institutes[i].courses[j].groups[k].students[l].LastName);
+                            numStudent++;
+                        }
+                    }
+                }
+            }
+            int ViborStud = int.Parse(Console.ReadLine()) - 1;
+            int currentStudent = 0;
+            for (int i = 0; i < Institutes.Count; i++)
+            {
+                for (int j = 0; j < Institutes[i].courses.Count; j++)
+                {
+                    for (int k = 0; k < Institutes[i].courses[j].groups.Count; k++)
+                    {
+                        for (int l = 0; l < Institutes[i].courses[j].groups[k].students.Count; l++)
+                        {
+                            if (currentStudent == ViborStud)
+                            {
+                                Institutes[i].courses[j].groups[k].students.RemoveAt(l);
+                                Console.WriteLine("Студент удален!");
+                                return;
+                            }
+                            currentStudent++;
+                        }
+                    }
+                }
+            }
+        }
+        static void FindBestInstituteToFile()
+        {
+            if (Institutes.Count == 0)
+            {
+                Console.WriteLine("Институтов нету!");
+                return;
+            }
+
+            Institute bestInstitute = null;
+            int maxExcellentStudents = 0;
+
+            foreach (var institute in Institutes)
+            {
+                int excellentCount = 0;
+
+
+                foreach (var course in institute.courses)
+                {
+                    foreach (var group in course.groups)
+                    {
+                        foreach (var student in group.students)
+                        {
+                            if (student.Grades.Count > 0)
+                            {
+                                bool isExcellent = true;
+                                foreach (var grade in student.Grades)
+                                {
+                                    if (grade < 5)
+                                    {
+                                        isExcellent = false;
+                                        break;
+                                    }
+                                }
+                                if (isExcellent)
+                                {
+                                    excellentCount++;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (excellentCount > maxExcellentStudents)
+                {
+                    maxExcellentStudents = excellentCount;
+                    bestInstitute = institute;
+                }
+            }
+
+            if (bestInstitute != null)
+            {
+                using (System.IO.StreamWriter file = new System.IO.StreamWriter("result.txt"))
+                {
+                    file.WriteLine($"Институт с наибольшим количеством отличников: {bestInstitute.NameInst}");
+                    file.WriteLine($"Количество отличников: {maxExcellentStudents}");
+                }
+                Console.WriteLine("Результат записан в файл result.txt");
+            }
+            else
+            {
+                Console.WriteLine("Отличников не найдено!");
+            }
+        }
+    }
+}
+
