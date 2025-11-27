@@ -1,0 +1,402 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace задача_6
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("=== Базовая работа ===");
+            var queue = new MyPriorityOqueue<int>();
+            queue.add(10);
+            queue.add(5);
+            queue.add(15);
+            Console.WriteLine($"Минимальный: {queue.peek()}");
+            Console.WriteLine($"Размер: {queue.Size()}");
+
+            // Тест 2: Извлечение
+            Console.WriteLine("\n=== Извлечение ===");
+            Console.Write("Порядок: ");
+            while (!queue.IsEmpty())
+            {
+                Console.Write(queue.poll() + " ");
+            }
+
+            // Тест 3: Из массива
+            Console.WriteLine("\n\n=== Из массива ===");
+            int[] numbers = { 20, 8, 15, 3, 25 };
+            var queue2 = new MyPriorityOqueue<int>(numbers);
+            Console.WriteLine($"Минимальный: {queue2.peek()}");
+            Console.WriteLine($"Размер: {queue2.Size()}");
+
+        }
+    }
+   
+    public class MyPriorityOqueue<T> where T: IComparable<T>
+    {
+        public T[] queue;
+        public int size;
+        public IComparer<T> comparator;
+
+        public MyPriorityOqueue()
+        {
+            queue = new T[11];
+            size = 0;
+            comparator = Comparer<T>.Default;
+            
+        }
+        public MyPriorityOqueue(T[] a)
+        {
+            queue = new T[a.Length];
+            Array.Copy(a, queue, a.Length);
+            size = a.Length;
+            comparator = Comparer<T>.Default;
+            Buildheap();
+        }
+        public MyPriorityOqueue(int InitialCpaacity)
+        {
+            queue = new T[InitialCpaacity]; 
+            size = 0;
+            comparator = Comparer<T>.Default;
+        }
+        public MyPriorityOqueue(int InitalCapacity, IComparer<T> coparat)
+        {
+
+        }
+        
+        public void add(T e)
+        {
+            if(queue.Length < 64)
+            {
+                T[] temp = new T[queue.Length + 2];
+                Array.Copy(queue, temp, queue.Length);
+                queue = temp;
+                queue[size] = e;
+                size += 1;
+                Buildheap();
+            }
+            else
+            {
+                T[] temp = new T[queue.Length + queue.Length / 2];
+                Array.Copy(queue, temp, queue.Length);
+                queue = temp;
+                queue[size] = e;
+                size += 1;
+                Buildheap();
+            }
+        }
+        public void AddAll(T[] a)
+        {
+            if(queue.Length < size + a.Length)
+            {
+                T[] temp = new T[queue.Length + (size + a.Length - queue.Length)];
+                Array.Copy(queue, temp, queue.Length);
+                for (int i = 0; i < a.Length; i++)
+                {
+                    temp[size++] = a[i];
+                }
+                queue = temp;
+                size += a.Length;
+                Buildheap();
+            }
+            else
+            {
+                T[] temp = new T[queue.Length];
+                Array.Copy(queue, temp, queue.Length);
+                for(int i = 0; i < a.Length;i++)
+                {
+                    temp[size++] = a[i];
+                }
+                queue = temp;
+                size += a.Length;
+                Buildheap();
+            }
+        }
+        public void Clear()
+        {
+           for(int i = 0; i < queue.Length; i++)
+            {
+                queue[i] = default(T);
+            }
+            size = 0;
+        }
+        public bool contains(object o)
+        {
+            if(size == 0)
+            {
+                Console.WriteLine("Очередь пуста");
+                return false;
+            }
+            for(int i = 0; i < queue.Length;i++)
+            {
+                if (Equals(queue[i], o)) return true;
+            }
+            return false;
+
+        }
+        public bool countainsAll(T[] a)
+        {
+            int count = 0;
+            if (size == 0)
+            {
+                Console.WriteLine("Очередь пуста");
+                return false;
+            }
+            for(int i = 0;i < a.Length;i++)
+            {
+                if(contains(a[i]))count++;
+            }
+            if(count == a.Length)
+            {
+                return true;
+            }
+            return false;
+        }
+        public bool IsEmpty()
+        {
+            if (size == 0)
+            {
+               
+                return true;
+            }
+            return false;
+        }
+        public void remove(object o)
+        {
+            if (size == 0)
+            {
+                return;
+            }
+            for(int i = 0;i <  queue.Length;i++)
+            {
+                if(Equals(queue[i], o))
+                {
+                    queue[i] = default(T);
+                    size--;
+                }
+            }
+            Buildheap();
+        }
+        public void removeAll(T[] a)
+        {
+            for(int i = 0;i < a.Length;i++)
+            {
+                remove(a[i]);
+            }
+        }
+        public int Size()
+        {
+            return size;
+
+        }
+        public T[] toArray()
+        {
+            T[] values = new T[size];
+            Array.Copy(queue, values, size);
+            return values;
+        }
+        
+        public T element()
+        {
+            return queue[0];
+        }
+        public bool offer(T obj)
+        {
+            if(queue.Length < size + 1)
+            {
+                add(obj);
+                return true;
+            }
+            return false;
+        }
+        public T peek()
+        {
+            if (size > 0) return queue[0];
+            return default(T);
+        }
+        public T poll()
+        {
+            T res = queue[0];
+            queue[0] = queue[size - 1];
+            size--;
+            if (size > 0) HeapfyDowntoUp(0);
+            return res;
+        }
+        public void Buildheap()
+        {
+            for (int i = size / 2 - 1; i >= 0; i--)
+            {
+                HeapfyDowntoUp(i);
+            }
+        }
+        public void HeapfyDowntoUp(int index)
+        {
+            while (true)
+            {
+                int indleftChild = index * 2 + 1;
+                int indrighChild = index * 2 + 2;
+                int indparent = index;
+
+
+                if (indleftChild < size && comparator.Compare(queue[indleftChild], queue[indparent]) < 0)
+                {
+
+                    indparent = indleftChild;
+
+                }
+                if (indrighChild < size && comparator.Compare(queue[indrighChild], queue[indparent]) < 0)
+                {
+
+                    indparent = indrighChild;
+                }
+                if (indparent == index)
+                {
+                    break;
+                }
+                swap(index, indparent);
+                index = indparent;
+
+
+            }
+
+
+        }
+        public void swap(int ind1, int ind2)
+        {
+            T temp = queue[ind1];
+            queue[ind1] = queue[ind2];
+            queue[ind2] = temp;
+        }
+
+
+
+    }
+    //public class Heap<T> where T : IComparable<T>
+    //{
+    //    private T[] items;
+    //    private int size;
+    //    public Heap(T[] a)
+    //    {
+    //        items = new T[a.Length];
+    //        Array.Copy(a, items, a.Length);
+    //        size = a.Length;
+    //        Buildheap();
+    //    }
+    //    public void Buildheap()
+    //    {
+    //        for (int i = size / 2 - 1; i >= 0; i--)
+    //        {
+    //            HeapfyDowntoUp(i);
+    //        }
+    //    }
+    //    public void HeapfyDowntoUp(int index)
+    //    {
+    //        while (true)
+    //        {
+    //            int indleftChild = index * 2 + 1;
+    //            int indrighChild = index * 2 + 2;
+    //            int indparent = index;
+
+
+    //            if (indleftChild < size && items[indleftChild].CompareTo(items[index]) < 0)
+    //            {
+
+    //                indparent = indleftChild;
+
+    //            }
+    //            if (indrighChild < size && items[indrighChild].CompareTo(items[indparent]) < 0)
+    //            {
+
+    //                indparent = indrighChild;
+    //            }
+    //            if (indparent == index)
+    //            {
+    //                break;
+    //            }
+    //            swap(index, indparent);
+    //            index = indparent;
+
+
+    //        }
+
+    //    }
+
+    //    public void swap(int ind1, int ind2)
+    //    {
+    //        T temp = items[ind1];
+    //        items[ind1] = items[ind2];
+    //        items[ind2] = temp;
+    //    }
+    //    public void SwapInd(int a, int b)
+    //    {
+    //        int temp = a;
+    //        a = b;
+    //        b = temp;
+
+    //    }
+    //    public T FindMin()
+    //    {
+    //        return items[0];
+    //    }
+    //    public T DeleteMin()
+    //    {
+    //        T temp = items[0];
+    //        items[0] = items[size - 1];
+    //        size--;
+    //        if (size > 0) HeapfyDowntoUp(0);
+    //        return temp;
+    //    }
+    //    public void DownKey(int ind, T item)
+    //    {
+    //        items[ind] = item;
+    //        Buildheap();
+    //    }
+    //    public void AddKey(T item)
+    //    {
+    //        if (item == null) throw new ArgumentNullException(nameof(item));
+    //        int tempSize = size + 1;
+    //        T[] tempItems = new T[tempSize];
+    //        for (int i = 0; i < size; i++)
+    //        {
+    //            tempItems[i] = items[i];
+    //        }
+    //        tempItems[tempSize - 1] = item;
+    //        items = tempItems;
+    //        size++;
+    //        Buildheap();
+
+    //    }
+    //    public T[] MergeHeaps(T[] items1, T[] items2)
+    //    {
+    //        int resSize = items1.Length + items2.Length;
+    //        T[] res = new T[resSize];
+    //        for (int i = 0; i < items1.Length; i++)
+    //        {
+    //            res[i] = items1[i];
+    //        }
+    //        for (int i = 0; i < items2.Length; i++)
+    //        {
+    //            res[items1.Length + i] = items2[i];
+    //        }
+    //        items = res;
+    //        size = resSize;
+    //        Buildheap();
+    //        return items;
+    //    }
+    //    public void PrintHeap()
+    //    {
+    //        for (int i = 0; i < size; i++)
+    //        {
+    //            Console.Write(items[i] + " ");
+    //        }
+
+    //    }
+
+    //}
+}
+
