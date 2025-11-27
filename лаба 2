@@ -1,0 +1,79 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ConsoleApp2
+{
+    internal class Program
+    {
+        public abstract class Product
+        {
+            protected string Name;
+
+            public Product(string Name)
+            {
+
+                this.Name = Console.ReadLine();
+            }
+            public virtual void Get()
+            {
+                Console.WriteLine(Name);
+            }
+
+        }
+        public class Part : Product
+        {
+            public int count;
+            public Part(string Name, int count) : base(Name)
+            {
+                this.count = count;
+                
+            }
+            public override void Get()
+            {
+                Console.WriteLine($"{Name} этого изделия имеется {count} штук");
+            }
+
+        }
+        public class Mechanism : Part
+        {
+            public int countParts;
+            public Mechanism(string Name, int count, int countParts) : base(Name,count)
+            {
+                this.countParts = countParts;
+                
+            }
+            public override void Get()
+            {
+                Console.WriteLine($"В этом механизме {Name} хранится {countParts} механизмов  и {count} деталей ");
+                
+            }
+        }
+        public class Knot : Mechanism
+        {
+            public int countMecha;
+            public Knot(string Name, int count, int countParts, int countMecha) : base(Name,count, countParts)
+            {
+                this.countMecha = countMecha;
+            }
+            public override void Get()
+            {
+                Console.WriteLine($"Изделие {Name} состоит из {countMecha} узлов или из {countParts} механизмов или из {count} деталей");
+            }
+
+        }
+
+        static void Main(string[] args)
+        {
+            Console.Write("Введите названия изделия номер 1: ");
+            Product Name1 = new Knot(" ",120, 30, 10);
+            Name1.Get();
+            Console.Write("Введите названия изделия номер 2: ");
+            Product Name2 = new Mechanism(" ", 60, 30);
+            Name2.Get();
+            
+        }
+    }
+}
