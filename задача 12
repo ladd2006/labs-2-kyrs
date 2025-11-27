@@ -1,0 +1,350 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace задача_12
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            MyStack<int> stack = new MyStack<int>();
+
+           
+            stack.push(1);
+            stack.push(2);
+            stack.push(3);
+
+            Console.WriteLine($"Верхний элемент: {stack.peek()}"); 
+            Console.WriteLine($"Глубина 'первый': {stack.search(1)}"); 
+
+            
+            Console.WriteLine($"Извлекли: {stack.pop()}"); 
+            Console.WriteLine($"Извлекли: {stack.pop()}"); 
+            Console.WriteLine($"Стек пуст: {stack.empty()}"); 
+
+            Console.WriteLine($"Извлекли: {stack.pop()}");
+            Console.WriteLine($"Стек пуст: {stack.empty()}"); 
+        }
+    }
+    public class MyStack<T> : MyVector<T>
+    {
+        public MyStack() : base() { }
+
+        public MyStack(int initialCapacity) : base(initialCapacity) { }
+
+        public void push(T item)
+        {
+            add(item);
+        }
+
+        public T pop()
+        {
+            T topElement = get(Size() - 1);
+            remove(Size() - 1);
+            return topElement;
+        }
+
+        public T peek()
+        {
+            return get(Size() - 1);
+        }
+
+        public bool empty()
+        {
+            return IsEmpty();
+        }
+
+        public int search(T item)
+        {
+            for (int i = Size() - 1; i >= 0; i--)
+            {
+                if (Equals(get(i), item))
+                {
+                    return Size() - i;
+                }
+            }
+            return -1;
+        }
+
+    }
+    public class MyVector<T>
+    {
+        private T[] elementData;
+        private int elementCount;
+        private int CapacityIncrement;
+
+        private const int Default = 10;
+        public MyVector(int initialCapacity, int capacityIncrement)
+        {
+            elementData = new T[initialCapacity];
+            CapacityIncrement = capacityIncrement;
+            elementCount = 0;
+        }
+
+        public MyVector(int initialCapacity)
+        {
+            elementData = new T[initialCapacity];
+            CapacityIncrement = 0;
+            elementCount = 0;
+
+
+        }
+
+        public MyVector()
+        {
+            elementData = new T[Default];
+            CapacityIncrement = 0;
+            elementCount = 0;
+        }
+        public MyVector(T[] a)
+        {
+            elementData = a;
+            CapacityIncrement += a.Length;
+            elementCount = a.Length;
+
+        }
+        public void add(T e)
+        {
+
+            if (elementCount + 1 > elementData.Length)
+            {
+
+                if (CapacityIncrement > 0)
+                {
+                    T[] newVec = new T[(int)(elementData.Length + CapacityIncrement)];
+                    for (int i = 0; i < elementCount; i++)
+                    {
+                        newVec[i] = elementData[i];
+
+                    }
+                    elementData = newVec;
+
+
+
+                }
+                else
+                {
+
+                    T[] newwVec = new T[elementData.Length * 2];
+                    for (int i = 0; i < elementCount; i++)
+                    {
+                        newwVec[i] = elementData[i];
+                        elementData = newwVec;
+
+
+                    }
+                }
+            }
+            elementData[elementCount] = e;
+            elementCount++;
+
+        }
+        public void AddAll(T[] a)
+        {
+            if (elementData.Length < elementCount + a.Length)
+            {
+                T[] NewVec = new T[elementCount + a.Length];
+                for (int i = 0; i < elementCount; i++)
+                {
+                    NewVec[i] = elementData[i];
+                }
+                elementData = NewVec;
+            }
+
+            for (int i = 0; i < a.Length; i++)
+            {
+                elementData[elementCount + i] = a[i];
+            }
+            elementCount += a.Length;
+        }
+
+        public void Clear()
+        {
+            for (int i = 0; i < elementCount; i++)
+            {
+                elementData[i] = default(T);
+            }
+            elementCount = 0;
+        }
+        public bool Contains(object a)
+        {
+
+            for (int i = 0; i < elementCount - 1; i++)
+            {
+                if (Equals(a, elementData[i])) return true;
+
+            }
+            return false;
+        }
+        public bool ContainsAll(T[] a)
+        {
+            int count = 0;
+            for (int i = 0; i < a.Length; i++)
+            {
+                for (int j = 0; j < elementCount; j++)
+                {
+                    if (Equals(a[i], elementData[j])) count++;
+                }
+            }
+            if (count == a.Length) return true;
+            return false;
+
+
+        }
+        public bool IsEmpty()
+        {
+            if (elementCount == 0) return true;
+            return false;
+
+
+        }
+        public void remove(object a)
+        {
+            for (int i = 0; i < elementCount; i++)
+            {
+                if (Equals(elementData[i], a))
+                {
+                    for (int j = i; j < elementCount - 1; j++)
+                    {
+                        elementData[j] = elementData[j + 1];
+                    }
+                    elementData[elementCount - 1] = default(T);
+                    elementCount--;
+                    return;
+                }
+            }
+        }
+        public void removeAll(T[] a)
+        {
+            int len = a.Length;
+            for (int i = 0; i < len; i++)
+            {
+                remove(a[i]);
+            }
+        }
+        public void retainAll(T[] a)
+        {
+            for (int i = elementCount - 1; i >= 0; i--)
+            {
+                bool found = false;
+                for (int j = 0; j < a.Length; j++)
+                {
+                    if (Equals(elementData[i], a[j]))
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found)
+                {
+                    remove(elementData[i]);
+                }
+            }
+        }
+        public int Size()
+        {
+            return elementCount;
+        }
+        public T[] toArray(T[] a)
+        {
+            return elementData;
+        }
+        public void add(int ind, T e)
+        {
+            for (int i = elementCount; i > ind; i--)
+            {
+                elementData[i] = elementData[i - 1];
+            }
+            elementData[ind] = e;
+            elementCount++;
+
+        }
+        public void AddAll(int index, T[] a)
+        {
+            if (elementData.Length < elementCount + a.Length)
+            {
+                T[] temp = new T[elementData.Length + a.Length];
+                for (int i = 0; i < elementCount; i++)
+                {
+                    temp[i] = elementData[i];
+                }
+                elementData = temp;
+
+            }
+            for (int i = elementCount - 1; i >= index; i--)
+            {
+                elementData[i + a.Length] = elementData[i];
+            }
+            for (int i = 0; i < a.Length; i++)
+            {
+                elementData[index + i] = a[i];
+            }
+            elementCount += a.Length;
+        }
+        public T get(int ind)
+        {
+            return elementData[ind];
+        }
+        public int indexOf(object o)
+        {
+            for (int i = 0; i < elementCount; i++)
+            {
+                if (Equals(elementData[i], o)) return i;
+            }
+            return -1;
+        }
+        public int lastIndexOf(object o)
+        {
+            for (int i = elementCount - 1; i >= 0; i--)
+            {
+                if (Equals(elementData[i], o)) return i;
+            }
+            return -1;
+        }
+        public T remove(int index)
+        {
+            T res = elementData[index];
+            remove(elementData[index]);
+            return res;
+        }
+        public void set(int index, T e)
+        {
+            elementData[index] = e;
+        }
+        public T[] subList(int from, int to)
+        {
+            T[] res = new T[to - from];
+
+            for (int i = from; i < to; i++)
+            {
+                res[i - from] = elementData[i];
+            }
+            return res;
+
+        }
+        public T firstElement()
+        {
+            return elementData[0];
+        }
+        public T lastElement()
+        {
+            return elementData[elementCount - 1];
+        }
+        public void removeElementAt(int pos)
+        {
+            remove(elementData[pos]);
+        }
+        public void removeRange(int beg, int end)
+        {
+            for (int i = beg; i < end; i++)
+            {
+                remove(elementData[i]);
+            }
+        }
+
+
+    }
+}
