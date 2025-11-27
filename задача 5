@@ -1,0 +1,154 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace задача_5
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            int[] array = { 10, 5, 15, 3, 7 };
+            Heap<int> heap = new Heap<int>(array);
+
+            Console.WriteLine("Минимальный элемент: " + heap.FindMin());
+
+            
+            Console.WriteLine("Удаляем: " + heap.DeleteMin());
+            Console.WriteLine("Куча после удал: ");
+            heap.PrintHeap();
+            Console.WriteLine();
+            Console.WriteLine("новый минимальный: " + heap.FindMin());
+
+            
+            heap.AddKey(2);
+            Console.WriteLine("новый минимальный после добавления 2: " + heap.FindMin());
+
+        }
+        public class Heap<T> where T : IComparable<T>
+        {
+            private T[] items;
+            private int size;
+            public Heap(T[] a)
+            {
+                items = new T[a.Length];
+                Array.Copy(a, items, a.Length);
+                size = a.Length;
+                Buildheap();
+            }
+            public void Buildheap()
+            { 
+                for(int i = size / 2 - 1; i >= 0; i--)
+                {
+                    HeapfyDowntoUp(i);
+                }
+            }
+            public void HeapfyDowntoUp(int index)
+            {
+                while (true)
+                {
+                    int indleftChild = index * 2 + 1;
+                    int indrighChild = index * 2 + 2;
+                    int indparent = index;
+                   
+                    
+                        if (indleftChild < size && items[indleftChild].CompareTo(items[index]) < 0)
+                        {
+                            
+                            indparent = indleftChild;
+
+                        }
+                        if (indrighChild < size && items[indrighChild].CompareTo(items[indparent]) < 0)
+                        {
+                            
+                            indparent = indrighChild;
+                        }
+                        if(indparent == index)
+                        {
+                            break;
+                        }
+                        swap(index, indparent);
+                    index = indparent;
+                    
+                  
+                }
+
+            }
+
+            public void swap(int ind1, int ind2)
+            {
+                T temp = items[ind1];
+                items[ind1] = items[ind2];
+                items[ind2] = temp;
+            }
+            public void SwapInd(int a,int b)
+            {
+                int temp = a;
+                a = b;
+                b = temp;
+
+            }
+            public T FindMin()
+            {
+                return items[0];
+            }
+            public T DeleteMin()
+            {
+                T temp = items[0];
+                items[0] = items[size - 1];
+                size--;
+                if (size > 0) HeapfyDowntoUp(0);
+                return temp;
+            }
+            public void DownKey(int ind, T item)
+            {
+                items[ind] = item;
+                Buildheap();
+            }
+            public void AddKey(T  item)
+            {
+                if (item == null) throw new ArgumentNullException(nameof(item));
+                int tempSize = size + 1;
+                T[] tempItems = new T[tempSize];
+                for(int i = 0;i < size;i++)
+                {
+                    tempItems[i] = items[i];
+                }
+                tempItems[tempSize - 1] = item;
+                items = tempItems;
+                size++;
+                Buildheap();
+
+            }
+            public T[] MergeHeaps(T[] items1, T[] items2)
+            {
+                int resSize = items1.Length + items2.Length;
+                T[] res = new T[resSize];
+                for(int i = 0;i < items1.Length;i++)
+                {
+                    res[i] = items1[i];
+                }
+                for(int i = 0;i < items2.Length; i++)
+                {
+                    res[items1.Length + i] = items2[i];   
+                }
+                items = res;
+                size = resSize;
+                Buildheap();
+                return items;
+            }
+            public void PrintHeap()
+            {
+                for(int i = 0;i<size;i++)
+                {
+                    Console.Write(items[i] + " ");
+                }
+
+            }
+
+        }
+    }
+}
