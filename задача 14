@@ -14,7 +14,7 @@ namespace задача_14
         {
             MyArrrayDeque<string> deque = new MyArrrayDeque<string>();
 
-            // Добавляем элементы
+          
             deque.add("apple");
             deque.add("banana");
             deque.add("cherry");
@@ -24,19 +24,13 @@ namespace задача_14
 
             Console.WriteLine("Исходная очередь:");
             deque.PrintMas();
-            // apple banana cherry date elderberry
-
-            // Оставляем только "banana" и "date"
+            
             string[] retainArray = { "banana", "date" };
             deque.remove("apple");
            
             Console.WriteLine("Очередь после retainAll:");
             deque.PrintMas();
-            // banana date
-
-            // Пытаемся оставить те же элементы (изменений не будет)
-
-            // false - изменений не было
+            
         }
       
         public class MyArrrayDeque<T>
