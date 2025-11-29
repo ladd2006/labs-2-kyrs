@@ -1,0 +1,437 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.IO;
+
+namespace задача_9
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            string[] lines = File.ReadAllLines("input.txt");
+            MyArrayList<string> tags = new MyArrayList<string>();
+            
+            Console.WriteLine($"Прочитано строк: {lines.Length}");
+            foreach (string line in lines)
+            {
+                Console.WriteLine($"Строка: '{line}'");
+            }
+            foreach (string line in lines)
+            {
+
+                FindTags(line, tags);
+            }
+            Console.WriteLine($"Всего тегов {tags.Size()}");
+            tags.PrintMass();
+            DeleteDupl(tags);
+            Console.WriteLine($"Всего уникальных тегов: {tags.Size()}");
+            tags.PrintMass();
+        }
+
+        public static string CHangeToNorml(string tag)
+        {
+            string tagWithOut;
+            if (tag.Length < 2) return tag.ToLower();
+            tagWithOut = tag.Substring(1, tag.Length - 2);
+            if (tagWithOut.StartsWith("/"))
+            {
+                tagWithOut = tagWithOut.Substring(1);
+            }
+           
+            return tagWithOut.ToLower();
+
+        }
+        public static void DeleteDupl(MyArrayList<string> tags)
+        {
+            MyArrayList<string> unikal = new MyArrayList<string>();
+            string temp1, uniktemp1, temp2, uniktemp2;
+            bool dupl;
+            
+            for (int i = 0; i < tags.Size(); i++)
+            {
+                dupl = true;
+                temp1 = tags.get(i);
+                uniktemp1 = CHangeToNorml(temp1);
+                for (int j = 0; j < unikal.Size(); j++)
+                {
+                    temp2 = unikal.get(j);
+                    uniktemp2 = CHangeToNorml(temp2);
+                    if (uniktemp1 == uniktemp2)
+                    {
+                        dupl = false;
+                        break;
+                    }
+                }
+                if (dupl)
+                {
+                    unikal.Add(temp1);
+                }
+            }
+            tags.Clear();
+            for (int i = 0; i < unikal.Size(); i++)
+            {
+                tags.Add(unikal.get(i));
+            }
+        }
+        public static void FindTags(string line, MyArrayList<string> tags)
+        {
+            int i = 0;
+            while (i < line.Length)
+            {
+                
+                if (line[i] == '<')
+                {
+                    int start = i;
+
+                  
+                    while (i < line.Length && line[i] != '>')
+                    {
+                        i++;
+                    }
+
+                   
+                    if (i < line.Length && line[i] == '>')
+                    {
+                        string tag = line.Substring(start, i - start + 1);
+                        tags.Add(tag);
+                    }
+                }
+                i++;
+            }
+        }
+    
+        public class MyArrayList<T>
+        {
+            T[] elementData { get; set; }
+            int size { get; set; }
+
+
+            public MyArrayList()
+            {
+                elementData = new T[10];
+                size = 0;
+            }
+
+            public MyArrayList(T[] a)
+            {
+                size = a.Length;
+                elementData = new T[size];
+                Array.Copy(a, elementData, size);
+            }
+
+            public MyArrayList(int capacity)
+            {
+                size = 0;
+                elementData = new T[capacity];
+            }
+            public void Add(T e)
+            {
+                if (size >= elementData.Length)
+                {
+                    int tempsize = elementData.Length;
+                    T[] newELEM = new T[(int)(tempsize * 1.5) + 1];
+                    for (int i = 0; i < size; i++)
+                    {
+                        newELEM[i] = elementData[i];
+                    }
+                    elementData = newELEM;
+                }
+                elementData[size] = e;
+                size++;
+            }
+            public void AddAll(T[] a)
+            {
+                if (a.Length == 0) return;
+                if (size < a.Length)
+                {
+                    int tempSize = a.Length;
+                    T[] newELEM = new T[(int)(tempSize + size)];
+                    for (int i = 0; i < elementData.Length - 1; i++)
+                    {
+                        newELEM[i] = elementData[i];
+                    }
+                    elementData = newELEM;
+                }
+                for (int i = 0; i < a.Length - 1; i++)
+                {
+                    elementData[size++] = a[i];
+                }
+            }
+
+            public void Clear()
+            {
+                for (int i = 0; i < size; i++)
+                {
+                    elementData[i] = default(T);
+                }
+
+                size = 0;
+            }
+            public bool Contains(object a)
+            {
+                if (a == null)
+                {
+                    for (int i = 0; i < size; i++)
+                    {
+                        if (elementData[i] == null)
+                        {
+                            return true;
+                        }
+                    }
+                }
+                for (int i = 0; i < size - 1; i++)
+                {
+                    if (Equals(a, elementData[i])) return true;
+
+                }
+                return false;
+            }
+            public bool ContainsALl(T[] a)
+            {
+                int count = 0;
+                foreach (var num in a)
+                {
+
+                    for (int i = 0; i < size; i++)
+                    {
+                        if (Equals(num, elementData[i]))
+                        {
+                            count++;
+                            break;
+                        }
+                    }
+                }
+                if (count == a.Length) return true;
+                return false;
+            }
+            public bool isEmpty()
+            {
+                if (elementData == null) return true;
+                return false;
+            }
+            public void remove(object a)
+            {
+                for (int i = 0; i < size; i++)
+                {
+                    if (Equals(elementData[i], a))
+                    {
+                        for (int j = i; j < size - 1; j++)
+                        {
+                            elementData[j] = elementData[j + 1];
+                        }
+                        elementData[size - 1] = default(T);
+                        size--;
+                    }
+                }
+
+            }
+            public void removeAll(T[] a)
+            {
+                foreach (var num in a)
+                {
+                    remove(num);
+                }
+            }
+            public void retainAll(T[] a)
+            {
+                bool have = true;
+                for (int i = 0; i < size; i++)
+                {
+                    foreach (var num in a)
+                    {
+                        if (!Equals(elementData[i], num))
+                        {
+                            have = false;
+                        }
+
+                    }
+                    if (have == false)
+                    {
+                        elementData[i] = default(T);
+                    }
+                }
+            }
+            public int Size()
+            {
+                return size;
+            }
+            public void add(int index, T e)
+            {
+                if (index > size)
+                {
+                    int tempsize = index;
+                    T[] newMas = new T[tempsize];
+                    for (int i = 0; i < size; i++)
+                    {
+                        newMas[i] = elementData[i];
+                    }
+                    elementData = newMas;
+                    elementData[index] = e;
+                }
+                else
+                {
+
+                    T[] newMas = new T[size + 1];
+                    for (int i = 0; i < size; i++)
+                    {
+                        if (i >= index)
+                        {
+                            newMas[i + 1] = elementData[i];
+                        }
+                        else
+                        {
+                            newMas[i] = elementData[i];
+                        }
+                    }
+                    elementData = newMas;
+                    elementData[index] = e;
+
+                }
+
+            }
+            public T[] toArray(T[] a)
+            {
+                if (a == null)
+                {
+                    T[] newArray = new T[size];
+                    Array.Copy(elementData, newArray, size);
+                    return newArray;
+                }
+
+                if (a.Length < size)
+                {
+                    T[] newArray = new T[size];
+                    Array.Copy(elementData, newArray, size);
+                    return newArray;
+                }
+
+                Array.Copy(elementData, a, size);
+
+                if (a.Length > size)
+                {
+                    a[size] = default(T);
+                }
+
+                return a;
+            }
+            public void addALL(int index, T[] a)
+            {
+                if (index > size)
+                {
+                    int aa = 0;
+                    int tempsize = size + a.Length + 1;
+                    T[] newMas = new T[tempsize];
+                    for (int i = 0; i < size; i++)
+                    {
+                        newMas[i] = elementData[i];
+                    }
+                    for (int i = index; i < tempsize; i++)
+                    {
+                        newMas[i] = a[aa];
+                        aa++;
+                    }
+                    elementData = newMas;
+
+                }
+                else
+                {
+                    int tempsize = size + a.Length + 1;
+                    T[] newMas = new T[tempsize];
+                    int b = 0;
+                    for (int i = 0; i < tempsize; i++)
+                    {
+                        if (i == index)
+                        {
+                            for (int j = 0; j < a.Length - 1; j++)
+                            {
+                                newMas[i++] = a[j];
+                            }
+                        }
+                        else
+                        {
+                            newMas[i] = elementData[b];
+                            b++;
+                        }
+                    }
+                }
+            }
+            public void PrintMass()
+            {
+                for (int i = 0; i < size; i++)
+                {
+                    Console.WriteLine(elementData[i]);
+                }
+            }
+            public T get(int index)
+            {
+
+                return elementData[index];
+
+
+            }
+            public int indexOF(object o)
+            {
+                for (int i = 0; i < size; i++)
+                {
+                    if (Equals(elementData[i], o))
+                    {
+                        return i;
+                    }
+
+                }
+                return -1;
+            }
+            public int LastIndexOf(object o)
+            {
+                int[] ind = new int[size];
+                int a = 0;
+                for (int i = 0; i < size; i++)
+                {
+
+                    if (Equals(o, elementData[i]))
+                    {
+                        ind[a] = i;
+                    }
+                }
+                if (ind.Length > 0)
+                {
+                    return ind[ind.Length - 1];
+                }
+                else
+                {
+                    return -1;
+                }
+            }
+            public void set(int index, object o)
+            {
+
+                if (index < size)
+                {
+                    elementData[index] = (T)o;
+                }
+                else
+                {
+                    Console.WriteLine("Такого индекса нету");
+                }
+            }
+            public T[] subList(int fromIndex, int toIndex)
+            {
+                int subSize = toIndex - fromIndex + 1;
+                T[] temp = new T[subSize];
+                for (int i = 0; i < subSize; i++)
+                {
+                    temp[i] = elementData[fromIndex + i];
+                }
+                return temp;
+            }
+
+
+
+
+
+        }
+    }
+}
