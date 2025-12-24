@@ -1,84 +1,24 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace задача_комплексные
 {
-    
-
-    struct Complex
-    {
-        public double Re;
-        public double Im;
-
-
-        public Complex(double re, double im)
-        {
-            Re = re;
-            Im = im;
-        }
-
-        public  Complex Add(Complex other)
-        {
-            return new Complex(Re + other.Re, Im + other.Im);
-        }
-
-        public Complex Raz(Complex other)
-        {
-            return new Complex(Re - other.Re, Im - other.Im);
-        }
-
-        public Complex Mul(Complex other)
-        {
-            return new Complex(Re * other.Re - Im * other.Im,
-                               Re * other.Im + Im * other.Re);
-        }
-
-        public Complex Div(Complex other)
-        {
-            double temp = other.Re * other.Re + other.Im * other.Im;
-            return new Complex((Re * other.Re + Im * other.Im) / temp,
-                               (Im * other.Re - Re * other.Im) / temp);
-        }
-
-        public double Abs()
-        {
-            return Math.Sqrt(Re * Re + Im * Im);
-        }
-
-        public double Arg()
-        {
-            return Math.Atan2(Im, Re);
-        }
-
-        
-
-        public override string ToString()
-        {
-            return $"{Re} {(Im >= 0 ? "+" : "-")} {Math.Abs(Im)}i";
-        }
-    }
-
     class Program
     {
         static void Main()
         {
             Complex num = new Complex(0, 0);
+
             while (true)
             {
-                Console.WriteLine("Текущее число: " + num);
-                Console.WriteLine("Выберите действие:");
-                Console.WriteLine("1  Ввести новое число");
-                Console.WriteLine("2  Сложить");
-                Console.WriteLine("3  Вычесть");
-                Console.WriteLine("4  Умножить");
-                Console.WriteLine("5  Разделить");
-                Console.WriteLine("6  Найти модуль");
-                Console.WriteLine("7  Найти аргумент");
-                Console.WriteLine("Q  Выход");
-                
+                Console.WriteLine($"число щас: {num}");
+                Console.WriteLine("1 новое число ввести");
+                Console.WriteLine("2 +");
+                Console.WriteLine("3 -");
+                Console.WriteLine("4 *");
+                Console.WriteLine("5 /");
+                Console.WriteLine("6 модуль");
+                Console.WriteLine("7 аргумент");
+                Console.WriteLine("Q выход");
 
                 string vibor = Console.ReadLine();
                 Console.WriteLine();
@@ -86,9 +26,9 @@ namespace задача_комплексные
                 switch (vibor)
                 {
                     case "1":
-                        Console.Write("Введите Re: ");
+                        Console.Write("Re: ");
                         double re = double.Parse(Console.ReadLine());
-                        Console.Write("Введите Im: ");
+                        Console.Write("Im: ");
                         double im = double.Parse(Console.ReadLine());
                         num = new Complex(re, im);
                         break;
@@ -99,36 +39,40 @@ namespace задача_комплексные
                         break;
 
                     case "3":
-                        Complex raz = InputComplex();
-                        num = num.Raz(raz);
+                        Complex sub = InputComplex();
+                        num = num.Subtract(sub);
                         break;
 
                     case "4":
                         Complex mul = InputComplex();
-                        num = num.Mul(mul);
+                        num = num.Multiply(mul);
+                        break;
+
+                    case "5":
+                        Complex div = InputComplex();
+                        num = num.Divide(div);
                         break;
 
                     case "6":
-                        Complex div = InputComplex();
-                        num = num.Div(div);
+                        Console.WriteLine($"Модуль: {num.Modulus():F4}");
+                        Console.ReadLine();
                         break;
 
                     case "7":
-                        Console.WriteLine("Модуль = " + num.Abs());
-                        break;
-
-                    case "8":
-                        Console.WriteLine("Аргумент (в радианах) = " + num.Arg());
+                        Console.WriteLine($"Аргумент: {num.Argument():F4} рад");
+                        Console.ReadLine();
                         break;
 
                     case "Q":
-                        Console.WriteLine("Выход");
+                    case "q":
                         return;
 
                     default:
-                        Console.WriteLine("Неизвестная команда!");
+                        Console.WriteLine("Неверная команда");
                         break;
                 }
+
+                Console.Clear();
             }
         }
 
@@ -139,6 +83,64 @@ namespace задача_комплексные
             Console.Write("Введите Im: ");
             double im = double.Parse(Console.ReadLine());
             return new Complex(re, im);
+        }
+    }
+    public class Complex
+    {
+        public double Re { get; set; }
+        public double Im { get; set; }
+
+        public Complex()
+        {
+            Re = 0;
+            Im = 0;
+        }
+
+        public Complex(double re, double im)
+        {
+            Re = re;
+            Im = im;
+        }
+
+        public Complex Add(Complex other)
+        {
+            return new Complex(Re + other.Re, Im + other.Im);
+        }
+
+        public Complex Subtract(Complex other)
+        {
+            return new Complex(Re - other.Re, Im - other.Im);
+        }
+
+        public Complex Multiply(Complex other)
+        {
+            double re = Re * other.Re - Im * other.Im;
+            double im = Re * other.Im + Im * other.Re;
+            return new Complex(re, im);
+        }
+
+        public Complex Divide(Complex other)
+        {
+            double denominator = other.Re * other.Re + other.Im * other.Im;
+            double re = (Re * other.Re + Im * other.Im) / denominator;
+            double im = (Im * other.Re - Re * other.Im) / denominator;
+            return new Complex(re, im);
+        }
+
+        public double Modulus()
+        {
+            return Math.Sqrt(Re * Re + Im * Im);
+        }
+
+        public double Argument()
+        {
+            return Math.Atan2(Im, Re);
+        }
+
+        public override string ToString()
+        {
+            string sign = Im >= 0 ? "+" : "-";
+            return $"{Re} {sign} {Math.Abs(Im)}i";
         }
     }
 }
